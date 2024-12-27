@@ -1,4 +1,4 @@
-package br.com.alura.screenmatch.Utils;
+package br.com.alura.screenMatch.Utils;
 
 import io.github.cdimascio.dotenv.Dotenv;
 

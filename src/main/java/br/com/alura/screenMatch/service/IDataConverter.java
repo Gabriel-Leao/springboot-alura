@@ -1,4 +1,4 @@
-package br.com.alura.screenmatch.service;
+package br.com.alura.screenMatch.service;
 
 public interface IDataConverter {
     <T> T getData(String json, Class<T> tClass);

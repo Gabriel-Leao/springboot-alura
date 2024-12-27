@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>br.com.alura</groupId>
-	<artifactId>screenmatch</artifactId>
+	<artifactId>screenMatch</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>screenmatch</name>
-	<description>primeiro projeto spring sem web</description>
+	<name>ScreenMatch</name>
+	<description>Transformando em uma API</description>
 	<url/>
 	<licenses>
 		<license/>
