@@ -17,7 +17,7 @@ public class Main {
     private final String apiKey = "&apikey=" + EnvUtil.getEnv("API_KEY");
     private String productionName;
     private final DataConverter converter = new DataConverter();
-    ArrayList<SerieData> searchedSeries = new ArrayList<>();
+    ArrayList<Serie> searchedSeries = new ArrayList<>();
 
     public void applicationMenu () {
         int option = -1;
@@ -65,8 +65,9 @@ public class Main {
     }
 
     private void searchSerie() {
-        SerieData serie = converter.getData(searchProduction(true), SerieData.class);
-        System.out.println("Série encontrada: " + serie.title() + " - (" + serie.releaseDate() + ")" + " - " + serie.totalSeasons() + (serie.totalSeasons() > 1 ? " temporadas" : " temporada"));
+        SerieData serieData = converter.getData(searchProduction(true), SerieData.class);
+        Serie serie = new Serie(serieData);
+        System.out.println("Série encontrada: " + serie.getTitle());
         searchedSeries.add(serie);
     }
 
@@ -126,7 +127,9 @@ public class Main {
     }
 
     private void showSearchedSeries() {
-        searchedSeries.forEach(serie -> System.out.println(serie.title() + " - (" + serie.releaseDate() + ")" + " - " + serie.totalSeasons() + (serie.totalSeasons() > 1 ? " temporadas" : " temporada")));
+        searchedSeries.stream()
+                .sorted(Comparator.comparing(Serie::getGenre))
+                .forEach(System.out::println);
     }
 }
 
