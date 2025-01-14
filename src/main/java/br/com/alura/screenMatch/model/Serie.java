@@ -1,18 +1,37 @@
 package br.com.alura.screenMatch.model;
 
 import br.com.alura.screenMatch.service.translation.QueryMyMemory;
+import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.OptionalDouble;
 
+@Entity
+@Table(name = "series")
 public class Serie {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(unique = true)
     private String title;
+    @Column()
     private String synopsis;
+    @Column()
     private String releaseDate;
+    @Column()
     private Double rating;
+    @Column()
     private int totalSeasons;
+    @Column()
+    @Enumerated(EnumType.STRING)
     private Category genre;
+    @Column()
     private String actors;
+    @Column()
     private String poster;
+    @Transient
+    private List<Episode> episodes = new ArrayList<>();
 
     public Serie(SerieData data) {
         this.title = data.title();
@@ -23,6 +42,16 @@ public class Serie {
         this.genre = Category.fromString(data.genre().split(",")[0].trim());
         this.actors = data.actors();
         this.poster = data.poster();
+    }
+
+    public Serie() {}
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -87,6 +116,14 @@ public class Serie {
 
     public void setPoster(String poster) {
         this.poster = poster;
+    }
+
+    public List<Episode> getEpisodes() {
+        return episodes;
+    }
+
+    public void setEpisodes(List<Episode> episodes) {
+        this.episodes = episodes;
     }
 
     @Override

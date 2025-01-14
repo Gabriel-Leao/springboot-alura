@@ -1,15 +1,19 @@
-package br.com.alura.screenMatch.Main;
+package br.com.alura.screenMatch.main;
 
-import br.com.alura.screenMatch.Utils.EnvUtil;
+import br.com.alura.screenMatch.repository.SerieRepository;
+import br.com.alura.screenMatch.utils.EnvUtil;
 import br.com.alura.screenMatch.model.*;
 import br.com.alura.screenMatch.service.ApiConsumer;
 import br.com.alura.screenMatch.service.DataConverter;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Component
 public class Main {
     private final Scanner scanner = new Scanner(System.in);
     private final ApiConsumer api = new ApiConsumer();
@@ -17,7 +21,10 @@ public class Main {
     private final String apiKey = "&apikey=" + EnvUtil.getEnv("API_KEY");
     private String productionName;
     private final DataConverter converter = new DataConverter();
-    ArrayList<Serie> searchedSeries = new ArrayList<>();
+    private final SerieRepository serieRepository;
+
+    @Autowired
+    public Main(SerieRepository serieRepository) { this.serieRepository = serieRepository; }
 
     public void applicationMenu () {
         int option = -1;
@@ -68,7 +75,7 @@ public class Main {
         SerieData serieData = converter.getData(searchProduction(true), SerieData.class);
         Serie serie = new Serie(serieData);
         System.out.println("Série encontrada: " + serie.getTitle());
-        searchedSeries.add(serie);
+        serieRepository.save(serie);
     }
 
     private void searchMovie() {
@@ -127,7 +134,7 @@ public class Main {
     }
 
     private void showSearchedSeries() {
-        searchedSeries.stream()
+        serieRepository.findAll().stream()
                 .sorted(Comparator.comparing(Serie::getGenre))
                 .forEach(System.out::println);
     }

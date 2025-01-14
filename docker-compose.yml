@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: bitnami/postgresql:latest
+    ports:
+        - '5432:5432'
+    environment:
+      - POSTGRESQL_USERNAME=postgres
+      - POSTGRESQL_PASSWORD=postgres
+      - POSTGRESQL_DATABASE=screen_match
+    volumes:
+      - polls_pg_data:/bitnami/postgresql
+
+volumes:
+    polls_pg_data:
