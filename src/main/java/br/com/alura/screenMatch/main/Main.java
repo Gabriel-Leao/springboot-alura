@@ -19,9 +19,9 @@ public class Main {
     private final ApiConsumer api = new ApiConsumer();
     private final String url = "https://www.omdbapi.com/?t=";
     private final String apiKey = "&apikey=" + EnvUtil.getEnv("API_KEY");
-    private String productionName;
     private final DataConverter converter = new DataConverter();
     private final SerieRepository serieRepository;
+    private List<Serie> series = new ArrayList<>();
 
     @Autowired
     public Main(SerieRepository serieRepository) { this.serieRepository = serieRepository; }
@@ -33,7 +33,8 @@ public class Main {
             System.out.println("Bem vindo ao ScreenMatch!");
             System.out.println("1 - Buscar série");
             System.out.println("2 - Buscar filme");
-            System.out.println("3 - Listar séries buscadas");
+            System.out.println("3 - Buscar Episódio");
+            System.out.println("4 - Listar séries buscadas");
             System.out.println("0 - Sair");
             System.out.print("Digite a opção desejada: ");
             String stringOpt = scanner.nextLine();
@@ -53,6 +54,9 @@ public class Main {
                     searchMovie();
                     break;
                 case 3:
+                    searchEpisodes();
+                    break;
+                case 4:
                     showSearchedSeries();
                     break;
                 case 0:
@@ -65,9 +69,9 @@ public class Main {
         }
     }
 
-    private String searchProduction(boolean isSeries) {
-        System.out.print("Digite o nome da " + (isSeries ? "série" : "filme") + ": ");
-        productionName = scanner.nextLine();
+    private String searchProduction(boolean serie) {
+        System.out.print("Digite o nome da " + (serie ? "série" : "filme") + ": ");
+        String productionName = scanner.nextLine();
         return api.getData(url + productionName.replace(" ", "+") + apiKey);
     }
 
@@ -83,10 +87,10 @@ public class Main {
         System.out.println("Filme encontrado: " + movie.title() + " - (" + movie.releaseDate() + ")" + " - Diretor: " + movie.director());
     }
 
-    private List<SeasonData> getSeasons(@NotNull SerieData serie) {
+    private List<SeasonData> getSeasons(@NotNull Serie serie) {
         List<SeasonData> seasons = new ArrayList<>();
-		for (int i = 1; i <= serie.totalSeasons(); i++) {
-			String data = api.getData(url + productionName.replace(" ", "+") + "&Season=" + i + apiKey);
+		for (int i = 1; i <= serie.getTotalSeasons(); i++) {
+			String data = api.getData(url + serie.getTitle().replace(" ", "+") + "&Season=" + i + apiKey);
 			seasons.add(converter.getData(data, SeasonData.class));
 		}
 
@@ -120,10 +124,23 @@ public class Main {
                 .collect(Collectors.toList());
     }
 
-    private Optional<Episode> searchEpisode (List<Episode> episodeList, String episodeName) {
-        return episodeList.stream()
-                .filter(e -> e.getTitle().toUpperCase().contains(episodeName.toUpperCase()))
+    private Optional<List<Episode>> findEpisodesBySerieName(String serieName) {
+        Optional<Serie> serie = series.stream()
+                .filter(s -> s.getTitle().toLowerCase().contains(serieName.toLowerCase()))
                 .findFirst();
+
+        if (serie.isEmpty()) {
+            System.out.println("Série não encontrada!");
+            return Optional.empty();
+        }
+
+        Serie foundSerie = serie.get();
+        List<SeasonData> seasons = getSeasons(foundSerie);
+        List<Episode> episodes = convertSeasonsToEpisodes(seasons);
+
+        foundSerie.setEpisodes(episodes);
+        serieRepository.save(foundSerie);
+        return Optional.of(episodes);
     }
 
     private Map<Integer, Double> ratingForSeason(List<Episode> episodes) {
@@ -134,9 +151,28 @@ public class Main {
     }
 
     private void showSearchedSeries() {
-        serieRepository.findAll().stream()
+        series = serieRepository.findAll();
+        series.stream()
                 .sorted(Comparator.comparing(Serie::getGenre))
                 .forEach(System.out::println);
+    }
+
+    private void showSerieEpisodes(Optional<List<Episode>> episodes) {
+        if (episodes.isEmpty()) {
+            System.out.println("Episódios dá série não encontrados!");
+            return;
+        }
+
+        episodes.get().forEach(System.out::println);
+    }
+
+    private void searchEpisodes() {
+        System.out.println("Estas são as séries buscadas: ");
+        showSearchedSeries();
+        System.out.print("De qual delas quer buscar os episódios: ");
+        String serieName = scanner.nextLine();
+        Optional<List<Episode>> episodes = findEpisodesBySerieName(serieName);
+        showSerieEpisodes(episodes);
     }
 }
 

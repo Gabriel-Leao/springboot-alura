@@ -1,13 +1,29 @@
 package br.com.alura.screenMatch.model;
 
-import java.time.LocalDate;
+import jakarta.persistence.*;
 
+import java.time.LocalDate;
+@Entity
+@Table(name = "episodes")
 public class Episode {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+    @Column()
     private int season;
+    @Column(nullable = false)
     private String title;
+    @Column()
     private LocalDate releaseDate;
+    @Column()
     private int episodeNumber;
+    @Column()
     private Double rating;
+    @ManyToOne
+    @JoinColumn(name = "serie_id")
+    private Serie serie;
+
+    public Episode() {}
 
     public Episode(int season, EpisodeData episodeData) {
         this.season = season;
@@ -27,6 +43,10 @@ public class Episode {
         }
     }
 
+    public void setSerie(Serie serie) {
+        this.serie = serie;
+    }
+
     public Double getRating() {
         return rating;
     }
@@ -39,16 +59,12 @@ public class Episode {
         return season;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
     @Override
     public String toString() {
-        return "season=" + season +
-                ", title='" + title + '\'' +
-                ", releaseDate=" + releaseDate +
-                ", episodeNumber=" + episodeNumber +
-                ", rating=" + rating;
+        return "Temporada=" + season +
+                ", Título='" + title + '\'' +
+                ", Lançamento=" + releaseDate +
+                ", Número do episódio=" + episodeNumber +
+                ", Nota=" + rating;
     }
 }

@@ -30,8 +30,10 @@ public class Serie {
     private String actors;
     @Column()
     private String poster;
-    @Transient
+    @OneToMany(mappedBy = "serie", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<Episode> episodes = new ArrayList<>();
+
+    public Serie() {}
 
     public Serie(SerieData data) {
         this.title = data.title();
@@ -44,85 +46,20 @@ public class Serie {
         this.poster = data.poster();
     }
 
-    public Serie() {}
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getTitle() {
         return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getSynopsis() {
-        return synopsis;
-    }
-
-    public void setSynopsis(String synopsis) {
-        this.synopsis = synopsis;
-    }
-
-    public String getReleaseDate() {
-        return releaseDate;
-    }
-
-    public void setReleaseDate(String releaseDate) {
-        this.releaseDate = releaseDate;
-    }
-
-    public Double getRating() {
-        return rating;
-    }
-
-    public void setRating(Double rating) {
-        this.rating = rating;
     }
 
     public int getTotalSeasons() {
         return totalSeasons;
     }
 
-    public void setTotalSeasons(int totalSeasons) {
-        this.totalSeasons = totalSeasons;
-    }
-
     public String getGenre() {
         return genre.toString().substring(0, 1).toUpperCase() + genre.toString().substring(1).toLowerCase();
     }
 
-    public void setGenre(Category genre) {
-        this.genre = genre;
-    }
-
-    public String getActors() {
-        return actors;
-    }
-
-    public void setActors(String actors) {
-        this.actors = actors;
-    }
-
-    public String getPoster() {
-        return poster;
-    }
-
-    public void setPoster(String poster) {
-        this.poster = poster;
-    }
-
-    public List<Episode> getEpisodes() {
-        return episodes;
-    }
-
     public void setEpisodes(List<Episode> episodes) {
+        episodes.forEach(episode -> episode.setSerie(this));
         this.episodes = episodes;
     }
 
@@ -135,6 +72,7 @@ public class Serie {
                 ", Nota=" + rating +
                 ", Temporadas=" + totalSeasons +
                 ", Atores='" + actors + '\'' +
-                ", Poster='" + poster + '\'';
+                ", Poster='" + poster + '\'' +
+                ", Episódios=" + episodes;
     }
 }
