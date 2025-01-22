@@ -21,7 +21,6 @@ public class Main {
     private final String apiKey = "&apikey=" + EnvUtil.getEnv("API_KEY");
     private final DataConverter converter = new DataConverter();
     private final SerieRepository serieRepository;
-    private List<Serie> series = new ArrayList<>();
 
     @Autowired
     public Main(SerieRepository serieRepository) { this.serieRepository = serieRepository; }
@@ -35,8 +34,12 @@ public class Main {
             System.out.println("2 - Buscar filme");
             System.out.println("3 - Buscar Episódio");
             System.out.println("4 - Listar séries buscadas");
+            System.out.println("5 - Buscar série por titulo");
+            System.out.println("6 - Buscar séries por ator");
+            System.out.println("7 - Listar séries mais bem avaliadas");
+            System.out.println("8 - Buscar séries por gênero");
             System.out.println("0 - Sair");
-            System.out.print("Digite a opção desejada: ");
+            System.out.print("Digite a opção desejada => ");
             String stringOpt = scanner.nextLine();
 
             try {
@@ -58,6 +61,25 @@ public class Main {
                     break;
                 case 4:
                     showSearchedSeries();
+                    break;
+                case 5:
+                    Optional<Serie> serie = searchSerieByTitle();
+                    serie.ifPresentOrElse(System.out::println, () -> System.out.println("Série não encontrada!"));
+                    break;
+                case 6:
+                    List<Serie> actorSeries = searchSerieByActor();
+                    System.out.println("Séries encontradas: ");
+                    actorSeries.forEach(System.out::println);
+                    break;
+                case 7:
+                    List<Serie> bestSeries = bestSeries();
+                    System.out.println("Séries mais bem avaliadas: ");
+                    bestSeries.forEach( s-> System.out.println(s.getTitle() + " - " + s.getRating()));
+                    break;
+                case 8:
+                    List<Serie> genreSeries = searchSerieByGenre();
+                    System.out.println("Séries encontradas: ");
+                    genreSeries.forEach(System.out::println);
                     break;
                 case 0:
                     System.out.println("Até mais!");
@@ -125,9 +147,7 @@ public class Main {
     }
 
     private Optional<List<Episode>> findEpisodesBySerieName(String serieName) {
-        Optional<Serie> serie = series.stream()
-                .filter(s -> s.getTitle().toLowerCase().contains(serieName.toLowerCase()))
-                .findFirst();
+        Optional<Serie> serie = serieRepository.findByTitleContainingIgnoreCase(serieName);
 
         if (serie.isEmpty()) {
             System.out.println("Série não encontrada!");
@@ -151,7 +171,7 @@ public class Main {
     }
 
     private void showSearchedSeries() {
-        series = serieRepository.findAll();
+        List<Serie> series = serieRepository.findAll();
         series.stream()
                 .sorted(Comparator.comparing(Serie::getGenre))
                 .forEach(System.out::println);
@@ -174,5 +194,28 @@ public class Main {
         Optional<List<Episode>> episodes = findEpisodesBySerieName(serieName);
         showSerieEpisodes(episodes);
     }
-}
 
+    private Optional<Serie> searchSerieByTitle() {
+        System.out.print("Digite o titulo da série: ");
+        String serieTitle = scanner.nextLine();
+
+        return serieRepository.findByTitleContainingIgnoreCase(serieTitle);
+    }
+
+    private List<Serie> searchSerieByActor() {
+        System.out.print("Digite o nome do ator: ");
+        String actorName = scanner.nextLine();
+
+         return serieRepository.findByActorsContainingIgnoreCaseAndRatingGreaterThanEqual(actorName, 8.0);
+    }
+
+    private List<Serie> bestSeries() {
+         return serieRepository.findTop5ByOrderByRatingDesc();
+    }
+
+    private List<Serie> searchSerieByGenre() {
+        System.out.print("Digite o gênero desejado: ");
+        Genre genre = Genre.fromPortuguese(scanner.nextLine());
+        return serieRepository.findByGenre(genre);
+    }
+}

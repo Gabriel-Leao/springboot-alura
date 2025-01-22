@@ -25,7 +25,7 @@ public class Serie {
     private int totalSeasons;
     @Column()
     @Enumerated(EnumType.STRING)
-    private Category genre;
+    private Genre genre;
     @Column()
     private String actors;
     @Column()
@@ -41,7 +41,7 @@ public class Serie {
         this.releaseDate = data.releaseDate();
         this.rating = OptionalDouble.of(data.rating()).orElse(0.0);
         this.totalSeasons = data.totalSeasons();
-        this.genre = Category.fromString(data.genre().split(",")[0].trim());
+        this.genre = Genre.fromString(data.genre().split(",")[0].trim());
         this.actors = data.actors();
         this.poster = data.poster();
     }
@@ -61,6 +61,14 @@ public class Serie {
     public void setEpisodes(List<Episode> episodes) {
         episodes.forEach(episode -> episode.setSerie(this));
         this.episodes = episodes;
+    }
+
+    public Double getRating() {
+        return rating;
+    }
+
+    public void setRating(Double rating) {
+        this.rating = rating;
     }
 
     @Override
