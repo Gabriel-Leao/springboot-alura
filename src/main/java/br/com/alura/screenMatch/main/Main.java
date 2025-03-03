@@ -38,6 +38,7 @@ public class Main {
             System.out.println("6 - Buscar séries por ator");
             System.out.println("7 - Listar séries mais bem avaliadas");
             System.out.println("8 - Buscar séries por gênero");
+            System.out.println("9 - Filtrar séries para maratonar");
             System.out.println("0 - Sair");
             System.out.print("Digite a opção desejada => ");
             String stringOpt = scanner.nextLine();
@@ -80,6 +81,16 @@ public class Main {
                     List<Serie> genreSeries = searchSerieByGenre();
                     System.out.println("Séries encontradas: ");
                     genreSeries.forEach(System.out::println);
+                    break;
+                case 9:
+                    System.out.println("Filtrar séries para maratonar");
+                    System.out.print("Digite o número de temporadas: ");
+                    int totalSeasons = Integer.parseInt(scanner.nextLine());
+                    System.out.print("Digite a nota mínima: ");
+                    double rating = Double.parseDouble(scanner.nextLine());
+                    List<Serie> highRatingAndFewSeasons = filterSeries(totalSeasons, rating);
+                    System.out.println("Séries encontradas: ");
+                    highRatingAndFewSeasons.forEach(System.out::println);
                     break;
                 case 0:
                     System.out.println("Até mais!");
@@ -217,5 +228,9 @@ public class Main {
         System.out.print("Digite o gênero desejado: ");
         Genre genre = Genre.fromPortuguese(scanner.nextLine());
         return serieRepository.findByGenre(genre);
+    }
+
+    private List<Serie> filterSeries(int totalSeasons, double rating) {
+        return serieRepository.SeriesBySeasonAndRating(totalSeasons, rating);
     }
 }

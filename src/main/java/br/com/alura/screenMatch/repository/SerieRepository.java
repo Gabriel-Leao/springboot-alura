@@ -3,6 +3,7 @@ package br.com.alura.screenMatch.repository;
 import br.com.alura.screenMatch.model.Genre;
 import br.com.alura.screenMatch.model.Serie;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,4 +18,8 @@ public interface SerieRepository extends JpaRepository<Serie, Long> {
     List<Serie> findTop5ByOrderByRatingDesc();
 
     List<Serie> findByGenre(Genre genre);
+
+    @Query("SELECT serie FROM Serie serie WHERE serie.totalSeasons <= :totalSeasons AND serie.rating >= :rating")
+    List<Serie> SeriesBySeasonAndRating(int totalSeasons, double rating);
 }
+
